@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Essex County ARES – Amateur Radio Emergency Service</title>
+  <meta name="description" content="Essex County, NJ Amateur Radio Emergency Service (ARES): who we are, what we do, how to request support, and how to volunteer." />
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    :root{
+      --bg:#0b1020;         /* deep slate */
+      --panel:#0f172a;      /* dark panel */
+      --ink:#e5e7eb;        /* light text */
+      --muted:#a5b4fc;      /* accent */
+      --accent:#60a5fa;     /* action */
+      --ok:#10b981;         /* success */
+      --warn:#f59e0b;       /* attention */
+      --danger:#ef4444;     /* caution */
+      --card:#111827;       /* card bg */
+      --border:#1f2937;     /* borders */
+      --shadow:0 8px 24px rgba(0,0,0,.28);
+    }
+    html,body{margin:0;height:100%;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;background:var(--bg);color:var(--ink);}    
+    a{color:var(--accent);text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
+    header{position:sticky;top:0;background:linear-gradient(180deg,rgba(11,16,32,.95),rgba(11,16,32,.65));backdrop-filter:saturate(140%) blur(6px);border-bottom:1px solid var(--border);z-index:50}
+    .nav{display:flex;gap:18px;align-items:center;justify-content:space-between}
+    .brand{display:flex;gap:12px;align-items:center;min-width:0}
+    .brand .logo{width:48px;height:auto;display:grid;place-items:center;flex:0 0 auto}
+    .brand .logo img{max-width:100%;max-height:48px;object-fit:contain;border-radius:6px}
+    .brand strong{font-weight:800;letter-spacing:.3px;white-space:nowrap}
+
+    /* Primary nav */
+    .pillnav{display:flex;gap:8px;flex-wrap:wrap}
+    .pillnav a{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:rgba(17,24,39,.6)}
+    .cta{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:linear-gradient(180deg,#1f2937,#111827);border:1px solid var(--border);box-shadow:0 6px 20px rgba(0,0,0,.25)}
+    .cta .dot{width:8px;height:8px;border-radius:50%;background:var(--ok)}
+
+    /* Mobile menu button (hidden on desktop) */
+    .menu-toggle{display:none;align-items:center;justify-content:center;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(180deg,#0f172a,#0b1224);color:var(--ink)}
+    .menu-toggle svg{width:22px;height:22px;stroke:var(--ink)}
+
+    .hero{padding:56px 0 32px;background:radial-gradient(1200px 600px at 70% -20%, rgba(96,165,250,.20), transparent 60%), radial-gradient(800px 400px at 10% 20%, rgba(165,180,252,.12), transparent 60%)}
+    .hero h1{font-size:clamp(26px,5.5vw,46px);line-height:1.15;margin:0 0 10px}
+    .hero p.lead{max-width:70ch;color:#c7cbd4;font-size:1.05rem;margin:0}
+
+    /* Layout helpers */
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;align-items:start}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:var(--shadow);height:100%;display:flex;flex-direction:column}
+    .card h3{margin:0 0 10px}
+
+    /* Contact card should shrink to its content */
+    #contact .card { height: auto; display: block; }
+
+    .badge{display:inline-block;padding:2px 10px;border-radius:999px;border:1px solid var(--border);background:#0b1325;color:#cbd5e1;font-size:12px}
+    section{scroll-margin-top:90px;margin-top:36px}
+    h2{font-size:clamp(22px,3.2vw,32px);margin:0 0 12px}
+
+    /* Clean KPI row only (removed CTA bubbles) */
+    .kpi{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:18px}
+    .kpi .metric{background:linear-gradient(180deg,#0e162b,#0b1224);border:1px solid var(--border);border-radius:14px;padding:16px}
+    .metric b{font-size:22px}
+
+    details{border:1px solid var(--border);border-radius:12px;padding:12px;background:#0c1428}
+    details + details{margin-top:10px}
+    summary{cursor:pointer;font-weight:600}
+    .footer{margin-top:40px;padding:36px 0;border-top:1px solid var(--border);color:#9ca3af}
+    .muted{color:#9aa3b2}
+    .two-col{display:grid;grid-template-columns:1fr;gap:18px;align-items:stretch}
+    .two-col > *{height:100%}
+    @media(min-width:900px){.two-col{grid-template-columns:1.2fr .8fr}}
+    .list-cols{columns:2;gap:24px}
+    @media(max-width:640px){.list-cols{columns:1}}
+    .tag{display:inline-block;margin:6px 6px 0 0;padding:4px 10px;border-radius:999px;background:#0a1224;border:1px solid var(--border);font-size:.95rem}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;background:linear-gradient(180deg,#0e162b,#0b1224);border:1px solid var(--border)}
+    .btn:hover{filter:brightness(1.08)}
+    .note{font-size:1rem;color:#c7cbd4}
+    .table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .table td,.table th{padding:12px 14px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0b1325}
+    .table th{background:#0e162b;font-weight:700;text-align:left}
+    .table tr td:first-child,.table tr th:first-child{border-left:1px solid var(--border);border-top-left-radius:10px;border-bottom-left-radius:10px}
+    .table tr td:last-child,.table tr th:last-child{border-right:1px solid var(--border);border-top-right-radius:10px;border-bottom-right-radius:10px}
+    .sr-only{position:absolute;left:-9999px}
+
+    /* Mobile tweaks */
+    @media(max-width:900px){
+      .wrap{padding:14px 16px}
+      header{backdrop-filter:none}
+      .brand{gap:10px}
+      .brand .logo{width:40px}
+      .brand .logo img{max-height:40px}
+      .pillnav{display:none}
+      .menu-toggle{display:flex}
+      .kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    /* slide-in panel for the menu */
+    .mobile-panel{position:fixed;inset:0 0 auto auto;top:56px;right:12px;width:calc(100% - 24px);max-width:420px;background:linear-gradient(180deg,#0f172a,#0b1224);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:12px;display:none}
+    .mobile-panel a{display:block;padding:14px 12px;border-radius:10px;border:1px solid var(--border);background:#0a1224;margin-top:10px}
+    .mobile-panel .cta{width:100%;justify-content:center}
+    header.open .mobile-panel{display:block}
+
+    @media(max-width:520px){ .kpi{grid-template-columns:1fr} }
+    @media(max-width:480px){ section{scroll-margin-top:74px} }
+  </style>
+</head>
+<body>
+  <header id="top">
+    <div class="wrap nav">
+      <div class="brand">
+        <button class="menu-toggle" aria-label="Open menu" aria-controls="mobile-menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="logo" role="img" aria-label="ARES Logo">
+          <img src="https://www.arrl.org/images/view//Public_Service/ARES/ares_cl.jpg" alt="ARRL ARES Logo" />
+        </div>
+        <div>
+          <strong>Essex County ARES</strong><br>
+          <span class="muted" style="font-size:.95rem">Amateur Radio Emergency Service</span>
+        </div>
+      </div>
+      <nav class="pillnav" aria-label="Primary">
+        <a href="#about">About</a>
+        <a href="#capabilities">Capabilities</a>
+        <a href="#activation">Activation</a>
+        <a href="#training">Training</a>
+        <a href="#served">Served Area</a>
+        <a href="#contact" class="cta"><span class="dot"></span> Contact</a>
+      </nav>
+    </div>
+    <div id="mobile-menu" class="mobile-panel" role="dialog" aria-modal="true" aria-label="Site">
+      <a href="#about">About</a>
+      <a href="#capabilities">Capabilities</a>
+      <a href="#activation">Activation</a>
+      <a href="#training">Training</a>
+      <a href="#served">Served Area</a>
+      <a href="#contact" class="cta"><span class="dot"></span> Contact</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="wrap two-col">
+        <div>
+          <h1>Volunteer radio communicators supporting Essex County’s responders and community partners</h1>
+          <p class="lead">
+            Essex County <strong>Amateur Radio Emergency Service (ARES)</strong> is a volunteer communications unit of federally licensed Amateur Radio operators who support government and non-governmental partners before, during, and after emergencies. We train year-round and can establish reliable <em>voice and data</em> radio links when regular systems are overloaded, disrupted, or otherwise unavailable.
+          </p>
+          <div class="kpi" style="margin:18px 0 0">
+            <span class="metric"><span class="badge">Coverage</span><br><b>Essex County, NJ</b><br><span class="muted">22 municipalities</span></span>
+            <span class="metric"><span class="badge">Status</span><br><b>Volunteer</b><br><span class="muted">Mission-driven public service</span></span>
+            <span class="metric"><span class="badge">Contact</span><br><b>Stan Rogacki, K2EXX</b><br><span class="muted">County EC / RACES Coordinator</span></span>
+          </div>
+        </div>
+        <div>
+          <div class="card" role="complementary" aria-label="Quick facts">
+            <h3>What we can provide</h3>
+            <ul class="muted" style="margin:0 0 4px 18px;line-height:1.6">
+              <li>Staffing for EOCs, shelters, hospitals, field sites, and checkpoints</li>
+              <li>County-wide nets and directed traffic handling</li>
+              <li>Field-expedient antennas and portable stations</li>
+              <li>Voice and message traffic, including partner-preferred forms (e.g., ICS-213) via radio or radio-email</li>
+              <li>Liaison with regional nets and neighboring counties</li>
+            </ul>
+            <div class="note"><br><br>ARES augments—not replaces—public safety communications, and operates under partner direction.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="wrap">
+      <h2>About ARES</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Mission &amp; partners</h3>
+          <p class="note">ARES is a program of ARRL, The National Association for Amateur Radio®. Our volunteers support <strong>government</strong> agencies (local, county, state, tribal, federal) and <strong>non-governmental organizations</strong> such as relief/humanitarian groups. We prepare in advance through planning, training, exercises, and regular nets so we’re ready when asked to assist.</p>
+        </div>
+        <div class="card">
+          <h3>How we fit into emergency management</h3>
+          <p class="note">ARES follows the Incident Command System (ICS) and works within each agency’s procedures. When activated, operators report through the ARES leadership and the requesting agency’s chain of command. We can interface with the National Traffic System (NTS) and use radio-email (e.g., Winlink) when appropriate to deliver and track partner messages.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="capabilities" class="wrap">
+      <h2>Capabilities</h2>
+      <div class="grid">
+        <div class="card" style="grid-column: span 6">
+          <h3>Operational modalities</h3>
+          <p class="muted">Multi-band voice and data using VHF/UHF/HF; repeaters and accepted simplex channels; portable and fixed stations; point-to-point and net operations.</p>
+          <div>
+            <span class="tag">Directed &amp; resource nets</span>
+            <span class="tag">Message traffic</span>
+            <span class="tag">Radio-email (Winlink)</span>
+            <span class="tag">Liaison with NTS</span>
+            <span class="tag">Portable antennas</span>
+            <span class="tag">Field deployments</span>
+          </div>
+        </div>
+        <div class="card" style="grid-column: span 6">
+          <h3>Where we serve</h3>
+          <p class="muted">Emergency Operations Centers (EOCs), shelters and reception centers, public health clinics, hospitals, mobile command posts, damage-assessment teams, and public service events.</p>
+          <div>
+            <span class="tag">EOCs</span>
+            <span class="tag">Shelters</span>
+            <span class="tag">Hospitals</span>
+            <span class="tag">Field sites</span>
+            <span class="tag">Logistics points</span>
+          </div>
+        </div>
+        <br><br><br><br><br><br>
+        <div class="card" style="grid-column: span 12; margin-top:48px">
+          <h3>Typical use cases</h3>
+          <table class="table" aria-describedby="usecases">
+            <thead><tr><th scope="col">Scenario</th><th scope="col">Objective</th><th scope="col">ARES role</th></tr></thead>
+            <tbody>
+              <tr><td>Communication outages or overload</td><td>Preserve life-safety and situational awareness</td><td>Establish radio nets, relay ICS-213/214/309 information, staff EOCs</td></tr>
+              <tr><td>Severe weather &amp; flooding</td><td>Augment field reports and resource tracking</td><td>Provide field teams and control stations; relay requests; radio-email as needed</td></tr>
+              <tr><td>Shelter operations</td><td>Support logistics and welfare messaging</td><td>Set up local links and liaison to county/state nets</td></tr>
+              <tr><td>Public service events</td><td>Practice ICS and net procedures with partners</td><td>Staff checkpoints; after-action improvements</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+<br><br><br><br>
+    <section id="activation" class="wrap">
+      <h2>Activation &amp; requests</h2>
+      <details open>
+        <summary>How to request ARES support</summary>
+        <div class="note" style="margin-top:8px">
+          Agencies may request ARES through the Essex County Emergency Coordinator (see <a href="#contact">Contact</a>). Please include: point of contact, incident/event description, locations, timeframe, safety considerations, and any preferred forms (e.g., ICS-213) or operational constraints. ARES will coordinate with your ICS structure and provide a communications lead to integrate with your team.
+        </div>
+        <p style="margin-top:10px"><a class="btn" href="#contact">Go to Contact</a></p>
+      </details>
+      <details>
+        <summary>What to expect during activation</summary>
+        <ul class="note" style="margin-top:6px;line-height:1.6">
+          <li>Assignment of an ARES point of contact (POC) and, if needed, an on-scene Communications Unit function.</li>
+          <li>Integration with your ICS organization and compliance with your policies.</li>
+          <li>Operators equipped for self-sufficient field work when required.</li>
+          <li>Message handling using partner-preferred forms and radio-email where appropriate.</li>
+          <li>Participation in after-action reviews to drive continuous improvement.</li>
+        </ul>
+      </details>
+    </section>
+
+    <section id="training" class="wrap">
+      <h2>Volunteer &amp; training</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Who can join</h3>
+          <p class="note">Any FCC-licensed Amateur Radio operator with a commitment to public service may participate in ARES in a non-leadership role. Advancing into leadership or higher qualification levels includes additional training and, for certain levels, ARRL membership.</p>
+        </div>
+        <div class="card">
+          <h3>Training path (high-level)</h3>
+          <ul class="note" style="margin:0 0 0 18px;line-height:1.6">
+            <li><strong>Basic</strong> – Local ARES orientation; FEMA IS-100, IS-200, IS-700, IS-800; ARES Position Task Book (Level 1).</li>
+            <li><strong>Intermediate</strong> – ARRL Basic &amp; Intermediate EmComm; FEMA IS-100/200/700/800; ARES PTB (Level 2). <em>ARRL membership required for this level.</em></li>
+            <li><strong>Advanced</strong> – ARRL Advanced EmComm; FEMA PDS (IS-230/240/241/242/244), IS-288; ARES PTB (Level 3); ICS-300/400 where available. <em>ARRL membership required.</em></li>
+            <li><strong>Specialized</strong> – Additional preparation for ARESMAT or extended deployments; AUXCOMM where available.</li>
+          </ul>
+          <p class="note" style="margin-top:8px">ARES also cooperates with CERT/VOAD and can coordinate with NTS for traffic handling; groups may use radio-email (e.g., Winlink) when appropriate.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="served" class="wrap">
+      <h2>Served area: Essex County, New Jersey</h2>
+      <div class="two-col">
+        <div class="card">
+          <h3>Overview</h3>
+          <p class="note">Essex County includes <strong>22 municipalities</strong>, with Newark as the county seat. ARES support can be tailored for municipal EOCs, public safety, public health, and NGOs across the county.</p>
+          <div class="kpi" style="margin-top:8px">
+            <span class="metric"><span class="badge">County seat</span><br><b>Newark</b></span>
+            <span class="metric"><span class="badge">Municipalities</span><br><b>22</b></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Municipalities</h3>
+          <ul class="list-cols muted" aria-label="List of Essex County municipalities">
+            <li>Belleville Township</li>
+            <li>Bloomfield Township</li>
+            <li>Caldwell Borough</li>
+            <li>Cedar Grove Township</li>
+            <li>East Orange City</li>
+            <li>Essex Fells Borough</li>
+            <li>Fairfield Township</li>
+            <li>Glen Ridge Borough</li>
+            <li>Irvington Township</li>
+            <li>Livingston Township</li>
+            <li>Maplewood Township</li>
+            <li>Millburn Township</li>
+            <li>Montclair Township</li>
+            <li>Newark City</li>
+            <li>North Caldwell Borough</li>
+            <li>Nutley Township</li>
+            <li>City of Orange Township</li>
+            <li>Roseland Borough</li>
+            <li>South Orange Village Township</li>
+            <li>Verona Township</li>
+            <li>West Caldwell Township</li>
+            <li>West Orange Township</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="wrap">
+      <h2>Contact</h2>
+      <div class="card">
+        <p style="margin:0;line-height:1.8">
+          <strong>Stan Rogacki – K2EXX</strong><br/>
+          Essex County Emergency Coordinator – Amateur Radio Emergency Service (ARES)<br/>
+          RACES Coordinator – Essex County Office of Emergency Management<br/>
+          Email: stan@rogacki.net
+        </p>
+        <p class="note" style="margin-top:8px">For agencies: include your POC, operational period, locations, operational needs, and any required credentials or site access details.</p>
+      </div>
+    </section>
+
+    <section class="wrap footer" aria-label="Footer">
+      <div>
+        <div>© <span id="y"></span> Essex County ARES • Volunteer emergency communications in service to the public.</div>
+        <div class="muted" style="margin-top:6px">This site is for preparedness and information. For emergencies, dial 9-1-1.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      var y = document.getElementById('y');
+      if(y){ y.textContent = new Date().getFullYear(); }
+
+      var header = document.querySelector('header');
+      var btn = document.querySelector('.menu-toggle');
+      var panel = document.getElementById('mobile-menu');
+      if(btn && header && panel){
+        btn.addEventListener('click', function(){
+          var open = header.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        panel.addEventListener('click', function(e){
+          if(e.target.tagName === 'A'){
+            header.classList.remove('open');
+            btn.setAttribute('aria-expanded','false');
+          }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
