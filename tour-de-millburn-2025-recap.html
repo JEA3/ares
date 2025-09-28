@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>2025 Tour de Millburn — ARES Event Recap</title>
+  <meta name="description" content="Essex County ARES supported the 2025 Tour de Millburn with clear comms, timely ops, and a safe day for hundreds of cyclists across 2, 7, and 15-mile courses." />
+  <meta property="og:title" content="2025 Tour de Millburn — ARES Event Recap" />
+  <meta property="og:description" content="Beautiful weather, on-time start, clear comms, and no major safety incidents. Thank you to all volunteers and partners!" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/tdm-25-4.jpg" />
+  <meta name="theme-color" content="#0B5FFF" />
+
+  <!-- Optional: system/Google font fallback for a modern, readable look -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0b111b;            /* deep blue-black background */
+      --card:#0f1826;          /* card surface */
+      --ink:#eaf1ff;           /* primary text */
+      --muted:#b9c7e6;         /* secondary text */
+      --accent:#0B5FFF;        /* action blue */
+      --accent-2:#5aa2ff;      /* lighter accent */
+      --line:#1b2740;          /* separators */
+      --ok:#19c37d;            /* success green */
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--ink);
+      background:linear-gradient(180deg, #0b111b 0%, #0b1320 60%, #0b1422 100%);
+      -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .wrap{max-width:1100px; margin-inline:auto; padding:24px}
+    header.site{
+      border-bottom:1px solid var(--line);
+      padding:12px 0 6px;
+      margin-bottom:18px;
+    }
+    .brand{display:flex; gap:10px; align-items:center; font-weight:700; letter-spacing:.2px}
+    .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px #113422}
+    .brand span{opacity:.9}
+    .topnav{margin-left:auto; display:flex; gap:18px}
+    .row{display:flex; flex-wrap:wrap; gap:24px}
+    .hero{
+      position:relative; overflow:hidden; border-radius:18px; background:#09101c;
+      border:1px solid var(--line);
+    }
+    .hero .lede{
+      aspect-ratio: 16/7; width:100%; object-fit:cover; display:block; filter:saturate(1.05) contrast(1.02);
+    }
+    .hero .overlay{
+      position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,10,18,.0) 20%, rgba(6,10,18,.65) 70%, rgba(6,10,18,.85) 100%);
+      display:flex; align-items:flex-end;
+    }
+    .hero .title{
+      padding:22px;
+    }
+    h1{
+      margin:0 0 6px 0;
+      font-size: clamp(24px, 3.2vw, 40px);
+      line-height:1.1;
+      text-shadow:0 1px 0 rgba(0,0,0,.35);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+      background:rgba(11,95,255,.15); border:1px solid rgba(11,95,255,.35);
+      color:#dbe7ff; font-size:13px; letter-spacing:.2px
+    }
+    main{display:grid; grid-template-columns: 1.2fr .8fr; gap:24px; margin-top:24px}
+    @media (max-width: 900px){ main{grid-template-columns:1fr} }
+
+    .card{
+      background:linear-gradient(180deg, rgba(21,30,50,.65), rgba(18,26,43,.65));
+      border:1px solid var(--line);
+      border-radius:16px; padding:18px;
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .card h2{margin:0 0 10px 0; font-size: clamp(18px, 2.2vw, 24px)}
+    .muted{color:var(--muted)}
+    .stack{display:grid; gap:10px}
+    .bullets{margin:0; padding-left:18px}
+    .bullets li{margin:6px 0}
+    .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:12px}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; padding:10px 14px; border-radius:12px;
+      background:var(--accent); color:#03122a; font-weight:700; border:none; cursor:pointer;
+      box-shadow:0 6px 20px rgba(11,95,255,.35);
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .btn.ghost{
+      background:transparent; color:var(--ink); border:1px solid var(--line)
+    }
+
+    /* Gallery */
+    .gallery{
+      display:grid; gap:12px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width:1000px){ .gallery{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width:520px){ .gallery{grid-template-columns: 1fr;} }
+    .gallery figure{
+      margin:0; border-radius:14px; overflow:hidden; border:1px solid var(--line); position:relative;
+      background:#0a1220;
+    }
+    .gallery img{width:100%; height:100%; object-fit:cover; display:block; aspect-ratio: 4/3;}
+    .gallery figcaption{
+      position:absolute; inset:auto 8px 8px 8px; background:rgba(6,10,18,.55);
+      border:1px solid rgba(255,255,255,.1); padding:6px 8px; border-radius:10px; font-size:12px; color:#dfe8ff
+    }
+
+    /* Footer */
+    footer{
+      margin-top:28px; padding:24px 0; border-top:1px solid var(--line); color:var(--muted); font-size:14px
+    }
+
+    /* Small niceties */
+    .kudos{display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#0c1626}
+    .kudos .dot{width:8px; height:8px; border-radius:50%; background:var(--ok)}
+    .grid-2{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+    @media (max-width:700px){ .grid-2{grid-template-columns:1fr} }
+    .small{font-size:13px}
+  </style>
+</head>
+
+<body>
+  <header class="site">
+    <div class="wrap row">
+      <div class="brand">
+        <span class="dot" aria-hidden="true"></span>
+        <span>Essex County ARES</span>
+      </div>
+      <nav class="topnav">
+        <a href="/" aria-label="Home">Home</a>
+        <a href="/tour-de-millburn-2025.html">Ops Page</a>
+        <a href="mailto:kc2nj@osi3.net">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <img class="lede" src="img/tdm-25-4.jpg" alt="Lede photo from Tour de Millburn 2025" />
+      <div class="overlay">
+        <div class="title">
+          <div class="pill" aria-label="Event tag">2025 Tour de Millburn • Event Recap</div>
+          <h1>Clear Comms, Smooth Ops, and Smiles All Around</h1>
+          <p class="muted small">Sunday, Sept 28, 2025 • Millburn, NJ</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT -->
+    <main>
+      <article class="card">
+        <h2>Highlights</h2>
+        <ul class="bullets">
+          <li>Weather was beautiful—sunny and warm.</li>
+          <li>Event started on time.</li>
+          <li>Hundreds of cyclists enjoyed the 3 courses (2-mile, 7-mile, 15-mile).</li>
+          <li>Radio communication between ARES volunteers was clear and effective.</li>
+          <li>No major safety incidents along the courses.</li>
+          <li>Event sponsor and the Millburn Police Department were pleased with our performance and efforts.</li>
+        </ul>
+
+        <div class="cta">
+          <a class="btn" href="/tour-de-millburn-2025.html" title="View original operations page">View Ops Page</a>
+          <a class="btn ghost" href="https://ares.osi3.net/" title="Go to ARES site">More ARES Events</a>
+        </div>
+
+        <hr style="border:0;border-top:1px solid var(--line);margin:16px 0" />
+
+        <div class="stack">
+          <h2>Thank You</h2>
+          <p class="muted">Huge thanks to all ARES volunteers, the event organizers, and the Millburn Police Department. Your teamwork kept the airwaves clean and the riders safe.</p>
+
+          <div class="kudos">
+            <span class="dot" aria-hidden="true"></span>
+            <div>We appreciate everyone’s time and professionalism—hope to see you at future events!</div>
+          </div>
+        </div>
+      </article>
+
+      <aside class="card">
+        <h2>Debrief / Hotwash</h2>
+        <div class="grid-2">
+          <div>
+            <p class="muted">Zoom Meeting</p>
+            <p><strong>Tuesday, Sept 30, 2025</strong><br />8:15 PM (America/New_York)</p>
+          </div>
+          <div>
+            <p class="muted">Notes</p>
+            <p>We’ll review what went well and prioritize improvements for next year’s routes, staffing, and comms.</p>
+          </div>
+        </div>
+        <p class="small muted">Invite details will be shared on the ARES list.</p>
+      </aside>
+    </main>
+
+    <!-- GALLERY -->
+    <section class="card" style="margin-top:24px;">
+      <h2>Photo Gallery</h2>
+      <p class="muted small" style="margin-top:-4px">A few moments from the day—tap to open full size in a new tab.</p>
+      <div class="gallery">
+        <figure>
+          <a href="img/tdm-25-1.jpg" target="_blank" rel="noopener">
+            <img src="img/tdm-25-1.jpg" alt="Tour de Millburn photo 1" loading="lazy" />
+          </a>
+          <figcaption>On the course</figcaption>
+        </figure>
+        <figure>
+          <a href="img/tdm-25-2.jpg" target="_blank" rel="noopener">
+            <img src="img/tdm-25-2.jpg" alt="Tour de Millburn photo 2" loading="lazy" />
+          </a>
+          <figcaption>Volunteers in action</figcaption>
+        </figure>
+        <figure>
+          <a href="img/tdm-25-3.jpg" target="_blank" rel="noopener">
+            <img src="img/tdm-25-3.jpg" alt="Tour de Millburn photo 3" loading="lazy" />
+          </a>
+          <figcaption>Clear comms at checkpoints</figcaption>
+        </figure>
+        <figure>
+          <a href="img/tdm-25-4.jpg" target="_blank" rel="noopener">
+            <img src="img/tdm-25-4.jpg" alt="Tour de Millburn photo 4 (lede)" loading="lazy" />
+          </a>
+          <figcaption>Finish-line smiles</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <footer>
+      <div class="row" style="justify-content:space-between">
+        <div>© 2025 Essex County ARES • Tour de Millburn</div>
+        <div><a href="/tour-de-millburn-2025.html">Ops Page</a> • <a href="/">Home</a></div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
