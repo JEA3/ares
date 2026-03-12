@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a">
+  <title>2026 Tour de Millburn – ARES Mobile Ops</title>
+  <meta name="description" content="ARES mobile operations page for the 2026 Tour de Millburn. Map, tactical positions, operators, and frequencies." />
+
+  <!-- iOS PWA niceties -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+  <style>
+    :root{
+      --bg:#0b1020;         /* deep slate */
+      --panel:#0f172a;      /* dark panel */
+      --ink:#e5e7eb;        /* light text */
+      --muted:#a5b4fc;      /* accent */
+      --accent:#60a5fa;     /* action */
+      --ok:#10b981;         /* success */
+      --warn:#f59e0b;       /* warning */
+      --card:#121b31;       /* card background */
+      --ring:#1e293b;       /* subtle outlines */
+
+      /* Alert banner palette */
+      --banner-bg:#fde047;  /* vivid yellow */
+      --banner-border:#eab308; /* deeper yellow */
+      --banner-fg:#0b1020;  /* dark text for contrast */
+    }
+    * { box-sizing: border-box; }
+    html, body { margin:0; padding:0; background:var(--bg); color:var(--ink); font-family: system-ui, -apple-system, Segoe UI, Roboto,  Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; }
+    a { color: var(--accent); }
+    .wrap { max-width: 900px; margin: 0 auto; padding: env(safe-area-inset-top) 16px 96px; }
+
+    /* ATTENTION BANNER */
+    .alert-banner{
+      position: sticky; top: 0; z-index: 1100;
+      background: var(--banner-bg); color: var(--banner-fg);
+      border-bottom: 2px solid var(--banner-border);
+      padding: calc(env(safe-area-inset-top) + 8px) 12px 8px;
+      display: flex; align-items: center; gap: 10px; justify-content: center;
+      font-weight: 800; text-align: center; letter-spacing: .2px;
+      box-shadow: 0 6px 12px rgba(0,0,0,.25);
+    }
+    .alert-banner .icon{ font-size: 18px; line-height: 1; }
+    .alert-banner .banner-text{ font-size: 14px; }
+    .alert-banner .banner-text b{ font-weight: 900; }
+    .banner-close{
+      all: unset; cursor: pointer; margin-left: auto; padding: 8px;
+      border-radius: 8px; line-height: 1; color: inherit;
+    }
+    .banner-close:focus-visible{ outline: 2px solid currentColor; outline-offset: 2px; }
+    @media (min-width:640px){
+      .alert-banner .banner-text{ font-size: 15px; }
+    }
+
+    /* Header */
+    header {
+      position: sticky; top: 0; z-index: 1000;
+      background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(15,23,42,0.92));
+      border-bottom: 1px solid var(--ring);
+      padding: 10px 12px;
+      display: flex; align-items: center; gap: 12px;
+      backdrop-filter: blur(6px);
+    }
+    header img { width: 36px; height: 36px; object-fit: cover; border-radius: 6px; }
+    header .title { line-height: 1.1; }
+    header .title b { display:block; font-size: 16px; }
+    header .title span { font-size: 12px; opacity: 0.9; }
+
+    /* Hero / event summary */
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--ring);
+      border-radius: 14px;
+      padding: 14px;
+      margin: 14px 0;
+      display: grid; gap: 10px;
+    }
+    .kvs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .kv {
+      background: var(--card);
+      border: 1px solid var(--ring);
+      border-radius: 12px;
+      padding: 10px;
+      font-size: 14px;
+    }
+    .kv b { display:block; font-size:12px; opacity:.8; margin-bottom:4px; font-weight:600; }
+    .note { font-size: 12px; opacity: .85; }
+
+    /* Tabs */
+    .tabs { display:flex; gap:8px; margin:12px 0; }
+    .tabbtn {
+      flex:1; text-align:center; padding:10px 12px; border-radius:12px;
+      border:1px solid var(--ring); background:var(--card); color:var(--ink);
+      font-weight:600;
+    }
+    .tabbtn.active { outline:2px solid var(--muted); background: #141f3a; }
+
+    /* Map embed */
+    .mapwrap { border:1px solid var(--ring); border-radius:14px; overflow:hidden; background:#000; }
+    .mapwrap iframe { width:100%; height:56vh; min-height:320px; border:0; display:block; }
+
+    /* Controls & search */
+    .controls {
+      display:flex; gap:8px; margin:12px 0; flex-wrap:wrap;
+    }
+    .search {
+      flex:1; display:flex; align-items:center; gap:8px;
+      background: var(--card); border:1px solid var(--ring); border-radius:12px; padding:10px 12px;
+    }
+    .search input {
+      all: unset; flex:1; font-size:14px; color:var(--ink);
+    }
+    .chip {
+      padding:8px 10px; border-radius:999px; border:1px solid var(--ring); background:var(--card);
+      font-size:12px; font-weight:700; color:#fff; /* ensure white text per request */
+    }
+    .chip[data-active="true"] { outline:2px solid var(--muted); background:#141f3a; }
+
+    /* Cards list */
+    .list { display:grid; gap:10px; }
+    details.card {
+      background: var(--panel);
+      border:1px solid var(--ring);
+      border-radius: 14px;
+      overflow:hidden;
+    }
+    summary {
+      list-style:none; cursor:pointer;
+      padding:12px 14px; display:flex; align-items:center; gap:10px;
+    }
+    summary::-webkit-details-marker { display:none; }
+    .tag {
+      font-weight:800; font-size:12px; padding:4px 8px; border-radius:8px; background:#1a2440; border:1px solid var(--ring);
+      min-width: 44px; text-align:center;
+    }
+    .role { font-size:12px; opacity:.85; }
+    .summaryline { display:flex; flex-direction:column; gap:4px; }
+    .opline { font-size:13px; }
+    .body { padding:12px 14px; display:grid; gap:10px; border-top:1px solid var(--ring); background:#0c142a; }
+
+    .row { display:grid; grid-template-columns: 1fr; gap:10px; }
+    @media (min-width:640px){
+      .row.two { grid-template-columns: 1fr 1fr; }
+    }
+    .info {
+      background: var(--card);
+      border:1px solid var(--ring);
+      border-radius: 12px;
+      padding:10px;
+      font-size: 14px;
+    }
+    .info b { display:block; font-size:12px; opacity:.8; margin-bottom:4px; }
+    .btns { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn {
+      display:inline-block; padding:10px 12px; border-radius:12px; border:1px solid var(--ring); background:#152042;
+      font-weight:700; font-size:13px; text-decoration:none; color:var(--ink);
+      min-width:44px; text-align:center;
+    }
+    .btn:active { transform: translateY(1px); }
+
+    /* Sticky footer quick links */
+    .dock {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 999;
+      padding: 10px 12px calc(env(safe-area-inset-bottom) + 10px);
+      background: linear-gradient(0deg, rgba(11,16,32,0.98), rgba(11,16,32,0.85));
+      border-top: 1px solid var(--ring);
+      display:flex; gap:10px;
+    }
+    .dock .btn { flex:1; }
+
+    /* Small helpers */
+    .muted { opacity:.85; }
+    .hide { display:none !important; }
+  </style>
+</head>
+<body>
+
+  <!-- ATTENTION BANNER -->
+  <!-- 
+  <div class="alert-banner" role="alert" aria-live="assertive" aria-atomic="true">
+    <span class="icon" aria-hidden="true">⚠️</span>
+    <span class="banner-text">
+      Due to inclement weather, <b>this event has been postponed</b> to <b>Sunday, October 4th 2026</b>.
+    </span>
+    <button class="banner-close" aria-label="Dismiss banner">✕</button>
+  </div>
+  -->
+
+  <header>
+    <!-- Clickable ARES logo -->
+    <a href="https://ares.osi3.net/" aria-label="ARES Home">
+      <img src="/img/ares_cl.jpg" alt="ARES logo" width="36" height="36">
+    </a>
+    <div class="title">
+      <b>2026 Tour de Millburn</b>
+      <span>ARES Mobile Operations • Sept 20, 2026 • 7:30–10:30 AM</span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="hero" aria-label="Event summary">
+      <div class="kvs">
+        <div class="kv"><b>Date</b><div>Sunday, Sept 20, 2026</div></div>
+        <div class="kv"><b>Ops Window</b><div>07:30 – 10:30 AM</div></div>
+        <div class="kv"><b>Primary</b><div>147.505 (−1.0, PL 123.0)</div></div>
+        <div class="kv"><b>Backup</b><div>146.595 (+1.0, PL 100.0)</div></div>
+        <div class="kv"><b>Last updated</b><div id="lastUpdated">—</div></div>
+      </div>
+      <div class="note">Tip: tap a card to expand details, copy frequencies, or open the exact GPS pin in Google Maps.</div>
+    </section>
+
+    <div class="tabs" role="tablist" aria-label="View switch">
+      <button class="tabbtn active" id="tab-map" data-target="#view-map" aria-selected="true">Map</button>
+      <button class="tabbtn" id="tab-list" data-target="#view-list" aria-selected="false">Positions</button>
+    </div>
+
+    <!-- MAP VIEW -->
+    <section id="view-map" class="mapwrap" role="tabpanel" aria-labelledby="tab-map">
+      <!-- Embed automatically reflects changes as long as the map ID stays the same -->
+      <iframe
+        title="Tour de Millburn – Course & Posts"
+        loading="lazy"
+        src="https://www.google.com/maps/d/embed?mid=1vYAZUBwxCEfVb-zgA3t3Ss2n3otS1mU">
+      </iframe>
+    </section>
+
+    <!-- LIST VIEW -->
+    <section id="view-list" class="hide" role="tabpanel" aria-labelledby="tab-list" aria-live="polite">
+      <div class="controls">
+        <div class="search">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.49 21.49 20 15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          <input id="q" type="search" placeholder="Filter by tactical, street, operator, or situation…" aria-label="Filter positions">
+        </div>
+        <button class="chip" data-filter="all" data-active="true" aria-pressed="true">All</button>
+        <button class="chip" data-filter="ARES" aria-pressed="false">ARES</button>
+        <button class="chip" data-filter="MURS" aria-pressed="false">MURS</button>
+      </div>
+
+      <div id="cards" class="list" aria-live="polite"></div>
+    </section>
+  </div>
+
+  <!-- Sticky quick actions -->
+  <div class="dock" role="navigation" aria-label="Quick actions">
+    <a class="btn" href="https://www.google.com/maps/d/viewer?mid=1vYAZUBwxCEfVb-zgA3t3Ss2n3otS1mU" target="_blank" rel="noopener">Open Full Map</a>
+    <button id="copy-net" class="btn" type="button">Copy Net Freqs</button>
+    <button id="dl-csv" class="btn" type="button">Download CSV</button>
+  </div>
+
+<script>
+// --- Data model (edit here if assignments change) ---
+const POSTS = [
+  { tac:"X1",  pos:"Wyoming Ave & Glen Ave",               gps:"40.72474,-74.29625", op:"K2AUF",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Race Intersection",                  band:"ARES" },
+
+  { tac:"P2",  pos:"Mountain Av. & Myrtle Av.",            gps:"40.73095,-74.28716", op:"KB2SUL",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Steep Hill / Issue last year",       band:"ARES" },
+
+  { tac:"P3",  pos:"Old Short & Hobart",                   gps:"40.72768,-74.31125", op:"KE2DRE",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Drivers Fail To Stop",               band:"ARES" },
+
+  { tac:"V4",  pos:"Hobart Ave. & Hillside Ave.",          gps:"40.72758,-74.31861", op:"KC2HLA",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 1",              band:"ARES" },
+
+  { tac:"V5",  pos:"Lake Rd. & Western Dr.",               gps:"40.7341,-74.32263",  op:"KD2ONY",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 2",              band:"ARES" },
+
+  { tac:"V6",  pos:"Highland Ave. & Hartshorn Dr.",        gps:"40.73966,-74.32873", op:"KC2NJ",
+    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 3",              band:"ARES" },
+
+  { tac:"V7",  pos:"Farbrook Dr. & Hampshire Rd.",         gps:"40.74862,-74.3203",  op:"Mara",
+    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Central Observation 4",         band:"MURS" },
+
+  { tac:"V8",  pos:"Troy Lane & Troy Drive",               gps:"40.75283,-74.31584", op:"KD2ZSW",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Northern Observation 1",        band:"ARES" },
+
+  { tac:"V9",  pos:"Athens Rd. & Barry Ln.",               gps:"40.75517,-74.3192",  op:"Ben",
+    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Northern Observation 2",        band:"MURS" },
+
+  { tac:"P10", pos:"Long Hill Dr. & Mohawk Rd.",           gps:"40.7499,-74.32419",  op:"Mara",
+    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Mohawk Roadwork",               band:"MURS" },
+
+  { tac:"V11", pos:"Long Hill Dr. & Lee Terrace",          gps:"40.74172,-74.33291", op:"KC2NJ",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Western Observation 2",         band:"ARES" },
+
+  { tac:"V12", pos:"Slayton Dr. & Long Hill Dr.",          gps:"40.738,-74.33957",   op:"KE2FKE",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Western Observation 3",         band:"ARES" },
+
+  { tac:"V13", pos:"Falmouth St. & Cambridge Dr.",         gps:"40.73173,-74.33846", op:"KC1HBB",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Southern Observation 1",        band:"ARES" },
+
+  { tac:"X14", pos:"Chatham Rd. & Forest Drive S.",        gps:"40.72633,-74.3289",  op:"WB2GZL",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Race Intersection",             band:"ARES" },
+
+  { tac:"P15", pos:"Glenwood Dr. & Millburn Ave",          gps:"40.71938,-74.3208",  op:"K2EXX",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Drivers Fail To Stop",          band:"ARES" },
+
+  { tac:"V16", pos:"Millburn Ave. & Midland Rd.",          gps:"40.72221,-74.31373", op:"W2KAR",
+    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Southern Observation 2",        band:"ARES" },
+];
+
+    // --- Tab switcher ---
+    const tabMap  = document.getElementById('tab-map');
+    const tabList = document.getElementById('tab-list');
+    const viewMap = document.getElementById('view-map');
+    const viewList= document.getElementById('view-list');
+
+    function activateTab(btn) {
+      [tabMap, tabList].forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const target = document.querySelector(btn.dataset.target);
+      [viewMap, viewList].forEach(v => v.classList.add('hide'));
+      target.classList.remove('hide');
+      tabMap.setAttribute('aria-selected', btn === tabMap ? 'true' : 'false');
+      tabList.setAttribute('aria-selected', btn === tabList ? 'true' : 'false');
+    }
+    tabMap.addEventListener('click', () => activateTab(tabMap));
+    tabList.addEventListener('click', () => activateTab(tabList));
+
+    // --- Cards renderer ---
+    const cards = document.getElementById('cards');
+    function googleMapsLink(gps, label){
+      const [lat, lng] = gps.split(',');
+      return `https://www.google.com/maps?q=${encodeURIComponent(lat.trim()+','+lng.trim())}(${encodeURIComponent(label)})&z=19`;
+    }
+    function wazeLink(gps){
+      const [lat, lng] = gps.split(',');
+      return `https://waze.com/ul?ll=${encodeURIComponent(lat.trim()+','+lng.trim())}&navigate=yes`;
+    }
+    function makeCard(p){
+      const el = document.createElement('details');
+      el.className = 'card';
+      el.innerHTML = `
+        <summary>
+          <span class="tag">${p.tac}</span>
+          <div class="summaryline">
+            <div class="opline"><b>${p.pos}</b></div>
+            <div class="role muted">${p.op} • ${p.band}</div>
+          </div>
+        </summary>
+        <div class="body">
+          <div class="row two">
+            <div class="info"><b>Primary</b><div class="freq" data-copy="${p.primary}">${p.primary}</div></div>
+            <div class="info"><b>Backup</b><div class="freq" data-copy="${p.backup}">${p.backup}</div></div>
+          </div>
+          <div class="row two">
+            <div class="info"><b>GPS</b><div>${p.gps}</div></div>
+            <div class="info"><b>Situation</b><div>${p.situation}</div></div>
+          </div>
+          <div class="btns">
+            <a class="btn" href="${googleMapsLink(p.gps, p.tac + ' – ' + p.pos)}" target="_blank" rel="noopener">Open in Google Maps</a>
+            <a class="btn" href="${wazeLink(p.gps)}" target="_blank" rel="noopener">Open in Waze</a>
+            <button class="btn copy" data-copy="${p.primary + ' | ' + p.backup}" type="button">Copy Freqs</button>
+          </div>
+        </div>`;
+      return el;
+    }
+    function render(list){ cards.innerHTML = ''; list.forEach(p => cards.appendChild(makeCard(p))); }
+    render(POSTS);
+
+    // --- Filtering & chips ---
+    const q = document.getElementById('q');
+    const chips = [...document.querySelectorAll('.chip')];
+    let activeBand = 'all';
+    function applyFilter(){
+      const text = (q.value || '').toLowerCase();
+      const out = POSTS.filter(p => {
+        const matchesBand = (activeBand === 'all') ? true : p.band.toLowerCase() === activeBand.toLowerCase();
+        const hay = [p.tac, p.pos, p.op, p.primary, p.backup, p.situation, p.band].join(' ').toLowerCase();
+        return matchesBand && hay.includes(text);
+      });
+      render(out);
+      wireCopyButtons(); // rebind after render
+    }
+    q.addEventListener('input', applyFilter);
+    chips.forEach(c => c.addEventListener('click', () => {
+      chips.forEach(x => { x.dataset.active = 'false'; x.setAttribute('aria-pressed','false'); });
+      c.dataset.active = 'true'; c.setAttribute('aria-pressed','true');
+      activeBand = c.dataset.filter;
+      applyFilter();
+    }));
+
+    // --- Copy helpers ---
+    function copyText(txt){
+      navigator.clipboard?.writeText(txt).then(()=> {
+        toast('Copied');
+      }).catch(()=> alert('Copied:\n' + txt));
+    }
+    function wireCopyButtons(){
+      document.querySelectorAll('.copy').forEach(btn=>{
+        btn.addEventListener('click', ()=> copyText(btn.dataset.copy));
+      });
+      document.querySelectorAll('.freq').forEach(div=>{
+        div.style.cursor='pointer';
+        div.title='Tap to copy';
+        div.addEventListener('click', ()=> copyText(div.dataset.copy));
+      });
+    }
+    wireCopyButtons();
+
+    document.getElementById('copy-net').addEventListener('click', () => {
+      copyText('Primary: 147.505 (−1.0, PL 123.0)\nBackup: 146.595 (+1.0, PL 100.0)');
+    });
+
+    // --- CSV export ---
+    function toCSV(rows) {
+      const header = ["Tactical Call","Position","GPS Coordinates","Operator","Primary Frequency","Backup Frequency","Situation","Band"];
+      const escape = v => `"${String(v).replace(/"/g,'""')}"`;
+      const lines = [header, ...rows.map(p => [
+        p.tac, p.pos, p.gps, p.op, p.primary, p.backup, p.situation, p.band
+      ])].map(r => r.map(escape).join(","));
+      return lines.join("\r\n");
+    }
+    function downloadCSV() {
+      const csv = toCSV(POSTS);
+      const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "tour-de-millburn-2026_posts.csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+    document.getElementById('dl-csv').addEventListener('click', downloadCSV);
+
+    // --- Last updated badge (uses document.lastModified) ---
+    (function setLastUpdated(){
+      const el = document.getElementById('lastUpdated');
+      const d = new Date(document.lastModified || Date.now());
+      el.textContent = d.toLocaleString([], {year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+    })();
+
+    // --- Tiny toast ---
+    const toastDiv = document.createElement('div');
+    Object.assign(toastDiv.style, {
+      position:'fixed', bottom:'80px', left:'50%', transform:'translateX(-50%)',
+      background:'#0b1226', border:'1px solid #1e293b', padding:'8px 12px',
+      borderRadius:'10px', fontWeight:'700', zIndex:'2000', opacity:'0',
+      transition:'opacity .25s ease', pointerEvents:'none'
+    });
+    toastDiv.textContent = 'Copied';
+    document.body.appendChild(toastDiv);
+    function toast(msg){
+      toastDiv.textContent = msg;
+      toastDiv.style.opacity = '1';
+      clearTimeout(window.__toast);
+      window.__toast = setTimeout(()=> toastDiv.style.opacity = '0', 1100);
+    }
+
+    // --- Banner dismiss (session-scoped) ---
+    (function wireBannerDismiss(){
+      const key = 'tdm2026_banner_dismissed';
+      const banner = document.querySelector('.alert-banner');
+      if(!banner) return;
+      if(sessionStorage.getItem(key) === '1'){ banner.remove(); return; }
+      banner.querySelector('.banner-close')?.addEventListener('click', () => {
+        banner.remove();
+        sessionStorage.setItem(key, '1');
+      });
+    })();
+  </script>
+</body>
+</html>
