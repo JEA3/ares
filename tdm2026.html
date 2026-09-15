@@ -251,56 +251,18 @@
   </div>
 
 <script>
-// --- Data model (edit here if assignments change) ---
-const POSTS = [
-  { tac:"X1",  pos:"Wyoming Ave & Glen Ave",               gps:"40.72474,-74.29625", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Race Intersection",                  band:"ARES" },
+    // --- Live position feed / last-known-good cache ---
+    const TDM_DATA_URL =
+      'https://script.google.com/macros/s/AKfycbxh3OAR0QhDMJbrAMdY1iFiHpousOuW-h-RaGUZ8Dzo0v4fefctK1h7bl4k8hTUuHAyuw/exec';
+    const TDM_CACHE_KEY = 'tdm2026_positions_cache_v1';
+    const TDM_REFRESH_INTERVAL_MS = 60000;
+    const TDM_REQUEST_TIMEOUT_MS = 12000;
 
-  { tac:"P2",  pos:"Mountain Av. & Myrtle Av.",            gps:"40.73095,-74.28716", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Steep Hill / Issue last year",       band:"ARES" },
-
-  { tac:"P3",  pos:"Old Short & Hobart",                   gps:"40.72768,-74.31125", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Drivers Fail To Stop",               band:"ARES" },
-
-  { tac:"V4",  pos:"Hobart Ave. & Hillside Ave.",          gps:"40.72758,-74.31861", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 1",              band:"ARES" },
-
-  { tac:"V5",  pos:"Lake Rd. & Western Dr.",               gps:"40.7341,-74.32263",  op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 2",              band:"ARES" },
-
-  { tac:"V6",  pos:"Highland Ave. & Hartshorn Dr.",        gps:"40.73966,-74.32873", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)", backup:"146.595 (+1.0, PL 100.0)", situation:"Central Observation 3",              band:"ARES" },
-
-  { tac:"V7",  pos:"Farbrook Dr. & Hampshire Rd.",         gps:"40.74862,-74.3203",  op:"TBD",
-    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Central Observation 4",         band:"MURS" },
-
-  { tac:"V8",  pos:"Troy Lane & Troy Drive",               gps:"40.75283,-74.31584", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Northern Observation 1",        band:"ARES" },
-
-  { tac:"V9",  pos:"Athens Rd. & Barry Ln.",               gps:"40.75517,-74.3192",  op:"TBD",
-    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Northern Observation 2",        band:"MURS" },
-
-  { tac:"P10", pos:"Long Hill Dr. & Mohawk Rd.",           gps:"40.7499,-74.32419",  op:"TBD",
-    primary:"154.600 (MURS 5)",            backup:"154.570 (MURS 4)",            situation:"Mohawk Roadwork",               band:"MURS" },
-
-  { tac:"V11", pos:"Long Hill Dr. & Lee Terrace",          gps:"40.74172,-74.33291", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Western Observation 2",         band:"ARES" },
-
-  { tac:"V12", pos:"Slayton Dr. & Long Hill Dr.",          gps:"40.738,-74.33957",   op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Western Observation 3",         band:"ARES" },
-
-  { tac:"V13", pos:"Falmouth St. & Cambridge Dr.",         gps:"40.73173,-74.33846", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Southern Observation 1",        band:"ARES" },
-
-  { tac:"X14", pos:"Chatham Rd. & Forest Drive S.",        gps:"40.72633,-74.3289",  op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Race Intersection",             band:"ARES" },
-
-  { tac:"P15", pos:"Glenwood Dr. & Millburn Ave",          gps:"40.71938,-74.3208",  op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Drivers Fail To Stop",          band:"ARES" },
-
-  { tac:"V16", pos:"Millburn Ave. & Midland Rd.",          gps:"40.72221,-74.31373", op:"TBD",
-    primary:"147.505 (−1.0, PL 123.0)",   backup:"146.595 (+1.0, PL 100.0)",     situation:"Southern Observation 2",        band:"ARES" },
-];
+    let POSTS = [];
+    let tdmJsonpScript = null;
+    let tdmRequestTimer = null;
+    let tdmRequestInFlight = false;
+    let tdmHasData = false;
 
     // --- Tab switcher ---
     const tabMap  = document.getElementById('tab-map');
@@ -322,84 +284,178 @@ const POSTS = [
 
     // --- Cards renderer ---
     const cards = document.getElementById('cards');
-    function googleMapsLink(gps, label){
-      const [lat, lng] = gps.split(',');
-      return `https://www.google.com/maps?q=${encodeURIComponent(lat.trim()+','+lng.trim())}(${encodeURIComponent(label)})&z=19`;
+
+    function normalizePosition(p) {
+      const safe = p && typeof p === 'object' ? p : {};
+      return {
+        tac: String(safe.tac ?? ''),
+        pos: String(safe.pos ?? ''),
+        gps: String(safe.gps ?? ''),
+        op: String(safe.op ?? ''),
+        primary: String(safe.primary ?? ''),
+        backup: String(safe.backup ?? ''),
+        situation: String(safe.situation ?? ''),
+        band: String(safe.band ?? '')
+      };
     }
-    function wazeLink(gps){
-      const [lat, lng] = gps.split(',');
-      return `https://waze.com/ul?ll=${encodeURIComponent(lat.trim()+','+lng.trim())}&navigate=yes`;
+
+    function parseGps(gps) {
+      const parts = String(gps).split(',');
+      if (parts.length !== 2) return null;
+      const lat = Number(parts[0].trim());
+      const lng = Number(parts[1].trim());
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+      return { lat, lng };
     }
-    function makeCard(p){
-      const el = document.createElement('details');
-      el.className = 'card';
-      el.innerHTML = `
-        <summary>
-          <span class="tag">${p.tac}</span>
-          <div class="summaryline">
-            <div class="opline"><b>${p.pos}</b></div>
-            <div class="role muted">${p.op} • ${p.band}</div>
-          </div>
-        </summary>
-        <div class="body">
-          <div class="row two">
-            <div class="info"><b>Primary</b><div class="freq" data-copy="${p.primary}">${p.primary}</div></div>
-            <div class="info"><b>Backup</b><div class="freq" data-copy="${p.backup}">${p.backup}</div></div>
-          </div>
-          <div class="row two">
-            <div class="info"><b>GPS</b><div>${p.gps}</div></div>
-            <div class="info"><b>Situation</b><div>${p.situation}</div></div>
-          </div>
-          <div class="btns">
-            <a class="btn" href="${googleMapsLink(p.gps, p.tac + ' – ' + p.pos)}" target="_blank" rel="noopener">Open in Google Maps</a>
-            <a class="btn" href="${wazeLink(p.gps)}" target="_blank" rel="noopener">Open in Waze</a>
-            <button class="btn copy" data-copy="${p.primary + ' | ' + p.backup}" type="button">Copy Freqs</button>
-          </div>
-        </div>`;
+
+    function googleMapsLink(gps, label) {
+      const point = parseGps(gps);
+      if (!point) return null;
+      const coords = `${point.lat},${point.lng}`;
+      return `https://www.google.com/maps?q=${encodeURIComponent(coords)}(${encodeURIComponent(label)})&z=19`;
+    }
+
+    function wazeLink(gps) {
+      const point = parseGps(gps);
+      if (!point) return null;
+      return `https://waze.com/ul?ll=${encodeURIComponent(`${point.lat},${point.lng}`)}&navigate=yes`;
+    }
+
+    function textElement(tagName, className, text) {
+      const el = document.createElement(tagName);
+      if (className) el.className = className;
+      el.textContent = text;
       return el;
     }
-    function render(list){ cards.innerHTML = ''; list.forEach(p => cards.appendChild(makeCard(p))); }
-    render(POSTS);
+
+    function infoBlock(label, value, copyable = false) {
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.appendChild(textElement('b', '', label));
+      const valueEl = textElement('div', copyable ? 'freq' : '', value);
+      if (copyable) valueEl.dataset.copy = value;
+      info.appendChild(valueEl);
+      return info;
+    }
+
+    function actionLink(label, href) {
+      const link = document.createElement('a');
+      link.className = 'btn';
+      link.textContent = label;
+      link.href = href;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      return link;
+    }
+
+    function makeCard(p) {
+      const el = document.createElement('details');
+      el.className = 'card';
+
+      const summary = document.createElement('summary');
+      summary.appendChild(textElement('span', 'tag', p.tac));
+
+      const summaryLine = document.createElement('div');
+      summaryLine.className = 'summaryline';
+
+      const opLine = document.createElement('div');
+      opLine.className = 'opline';
+      opLine.appendChild(textElement('b', '', p.pos));
+      summaryLine.appendChild(opLine);
+      summaryLine.appendChild(textElement('div', 'role muted', `${p.op} • ${p.band}`));
+      summary.appendChild(summaryLine);
+      el.appendChild(summary);
+
+      const body = document.createElement('div');
+      body.className = 'body';
+
+      const freqRow = document.createElement('div');
+      freqRow.className = 'row two';
+      freqRow.appendChild(infoBlock('Primary', p.primary, true));
+      freqRow.appendChild(infoBlock('Backup', p.backup, true));
+      body.appendChild(freqRow);
+
+      const detailRow = document.createElement('div');
+      detailRow.className = 'row two';
+      detailRow.appendChild(infoBlock('GPS', p.gps));
+      detailRow.appendChild(infoBlock('Situation', p.situation));
+      body.appendChild(detailRow);
+
+      const buttons = document.createElement('div');
+      buttons.className = 'btns';
+      const mapsUrl = googleMapsLink(p.gps, `${p.tac} – ${p.pos}`);
+      const wazeUrl = wazeLink(p.gps);
+      if (mapsUrl) buttons.appendChild(actionLink('Open in Google Maps', mapsUrl));
+      if (wazeUrl) buttons.appendChild(actionLink('Open in Waze', wazeUrl));
+
+      const copyButton = document.createElement('button');
+      copyButton.className = 'btn copy';
+      copyButton.type = 'button';
+      copyButton.textContent = 'Copy Freqs';
+      copyButton.dataset.copy = `${p.primary} | ${p.backup}`;
+      buttons.appendChild(copyButton);
+      body.appendChild(buttons);
+
+      el.appendChild(body);
+      return el;
+    }
+
+    function renderStatus(message) {
+      cards.replaceChildren(textElement('div', 'info muted', message));
+    }
+
+    function render(list) {
+      cards.replaceChildren();
+      if (!list.length) {
+        renderStatus('No position assignments are currently available.');
+        return;
+      }
+      list.forEach(p => cards.appendChild(makeCard(p)));
+    }
 
     // --- Filtering & chips ---
     const q = document.getElementById('q');
     const chips = [...document.querySelectorAll('.chip')];
     let activeBand = 'all';
-    function applyFilter(){
+
+    function applyFilter() {
       const text = (q.value || '').toLowerCase();
       const out = POSTS.filter(p => {
-        const matchesBand = (activeBand === 'all') ? true : p.band.toLowerCase() === activeBand.toLowerCase();
+        const matchesBand = activeBand === 'all' || p.band.toLowerCase() === activeBand.toLowerCase();
         const hay = [p.tac, p.pos, p.op, p.primary, p.backup, p.situation, p.band].join(' ').toLowerCase();
         return matchesBand && hay.includes(text);
       });
       render(out);
-      wireCopyButtons(); // rebind after render
+      wireCopyButtons();
     }
+
     q.addEventListener('input', applyFilter);
     chips.forEach(c => c.addEventListener('click', () => {
       chips.forEach(x => { x.dataset.active = 'false'; x.setAttribute('aria-pressed','false'); });
-      c.dataset.active = 'true'; c.setAttribute('aria-pressed','true');
+      c.dataset.active = 'true';
+      c.setAttribute('aria-pressed','true');
       activeBand = c.dataset.filter;
       applyFilter();
     }));
 
     // --- Copy helpers ---
-    function copyText(txt){
-      navigator.clipboard?.writeText(txt).then(()=> {
+    function copyText(txt) {
+      navigator.clipboard?.writeText(txt).then(() => {
         toast('Copied');
-      }).catch(()=> alert('Copied:\n' + txt));
+      }).catch(() => alert('Copied:\n' + txt));
     }
-    function wireCopyButtons(){
-      document.querySelectorAll('.copy').forEach(btn=>{
-        btn.addEventListener('click', ()=> copyText(btn.dataset.copy));
+
+    function wireCopyButtons() {
+      document.querySelectorAll('.copy').forEach(btn => {
+        btn.addEventListener('click', () => copyText(btn.dataset.copy));
       });
-      document.querySelectorAll('.freq').forEach(div=>{
-        div.style.cursor='pointer';
-        div.title='Tap to copy';
-        div.addEventListener('click', ()=> copyText(div.dataset.copy));
+      document.querySelectorAll('.freq').forEach(div => {
+        div.style.cursor = 'pointer';
+        div.title = 'Tap to copy';
+        div.addEventListener('click', () => copyText(div.dataset.copy));
       });
     }
-    wireCopyButtons();
 
     document.getElementById('copy-net').addEventListener('click', () => {
       copyText('Primary: 147.505 (−1.0, PL 123.0)\nBackup: 146.595 (+1.0, PL 100.0)');
@@ -407,20 +463,21 @@ const POSTS = [
 
     // --- CSV export ---
     function toCSV(rows) {
-      const header = ["Tactical Call","Position","GPS Coordinates","Operator","Primary Frequency","Backup Frequency","Situation","Band"];
+      const header = ['Tactical Call','Position','GPS Coordinates','Operator','Primary Frequency','Backup Frequency','Situation','Band'];
       const escape = v => `"${String(v).replace(/"/g,'""')}"`;
       const lines = [header, ...rows.map(p => [
         p.tac, p.pos, p.gps, p.op, p.primary, p.backup, p.situation, p.band
-      ])].map(r => r.map(escape).join(","));
-      return lines.join("\r\n");
+      ])].map(r => r.map(escape).join(','));
+      return lines.join('\r\n');
     }
+
     function downloadCSV() {
       const csv = toCSV(POSTS);
-      const blob = new Blob([csv], {type: "text/csv;charset=utf-8;"});
+      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
+      const a = document.createElement('a');
       a.href = url;
-      a.download = "tour-de-millburn-2026_posts.csv";
+      a.download = 'tour-de-millburn-2026_posts.csv';
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -428,12 +485,106 @@ const POSTS = [
     }
     document.getElementById('dl-csv').addEventListener('click', downloadCSV);
 
-    // --- Last updated badge (uses document.lastModified) ---
-    (function setLastUpdated(){
+    // --- Feed timestamp ---
+    function setLastUpdated(updated) {
       const el = document.getElementById('lastUpdated');
-      const d = new Date(document.lastModified || Date.now());
-      el.textContent = d.toLocaleString([], {year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'});
-    })();
+      const d = new Date(updated);
+      if (Number.isNaN(d.getTime())) {
+        el.textContent = '—';
+        return;
+      }
+      el.textContent = d.toLocaleString([], {
+        year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'
+      });
+    }
+
+    // --- JSONP request lifecycle ---
+    function clearLiveRequest() {
+      if (tdmRequestTimer !== null) {
+        clearTimeout(tdmRequestTimer);
+        tdmRequestTimer = null;
+      }
+      if (tdmJsonpScript) {
+        tdmJsonpScript.remove();
+        tdmJsonpScript = null;
+      }
+      tdmRequestInFlight = false;
+    }
+
+    function handleLiveFailure(reason) {
+      clearLiveRequest();
+      console.warn('Tour de Millburn live position refresh failed:', reason);
+      if (!tdmHasData) {
+        renderStatus('Current position assignments could not be loaded. The page will retry automatically.');
+      }
+    }
+
+    function requestLiveData() {
+      if (tdmRequestInFlight) return;
+      tdmRequestInFlight = true;
+
+      const script = document.createElement('script');
+      tdmJsonpScript = script;
+      const separator = TDM_DATA_URL.includes('?') ? '&' : '?';
+      script.src = `${TDM_DATA_URL}${separator}callback=tdmReceiveData&_=${Date.now()}`;
+      script.async = true;
+      script.onerror = () => handleLiveFailure('network or script-load error');
+      document.head.appendChild(script);
+
+      tdmRequestTimer = setTimeout(() => {
+        if (tdmRequestInFlight) handleLiveFailure('request timed out');
+      }, TDM_REQUEST_TIMEOUT_MS);
+    }
+
+    // Explicit global callback required by the Apps Script JSONP response.
+    function tdmReceiveData(payload) {
+      if (!payload || payload.ok !== true || payload.schemaVersion !== 1 || !Array.isArray(payload.positions)) {
+        handleLiveFailure('invalid payload');
+        return;
+      }
+
+      const nextPosts = payload.positions.map(normalizePosition);
+      const updated = typeof payload.updated === 'string' ? payload.updated : '';
+
+      clearLiveRequest();
+      POSTS = nextPosts;
+      tdmHasData = true;
+      applyFilter();
+      setLastUpdated(updated);
+
+      try {
+        localStorage.setItem(TDM_CACHE_KEY, JSON.stringify({ updated, positions: nextPosts }));
+      } catch (error) {
+        console.warn('Unable to cache Tour de Millburn position data:', error);
+      }
+    }
+
+    function loadCachedData() {
+      let raw;
+      try {
+        raw = localStorage.getItem(TDM_CACHE_KEY);
+      } catch (error) {
+        console.warn('Unable to read Tour de Millburn position cache:', error);
+        return false;
+      }
+      if (!raw) return false;
+
+      try {
+        const cached = JSON.parse(raw);
+        if (!cached || typeof cached.updated !== 'string' || !Array.isArray(cached.positions)) {
+          throw new Error('cache structure is invalid');
+        }
+        POSTS = cached.positions.map(normalizePosition);
+        tdmHasData = true;
+        applyFilter();
+        setLastUpdated(cached.updated);
+        return true;
+      } catch (error) {
+        console.warn('Discarding invalid Tour de Millburn position cache:', error);
+        try { localStorage.removeItem(TDM_CACHE_KEY); } catch (_) {}
+        return false;
+      }
+    }
 
     // --- Tiny toast ---
     const toastDiv = document.createElement('div');
@@ -445,24 +596,34 @@ const POSTS = [
     });
     toastDiv.textContent = 'Copied';
     document.body.appendChild(toastDiv);
-    function toast(msg){
+    function toast(msg) {
       toastDiv.textContent = msg;
       toastDiv.style.opacity = '1';
       clearTimeout(window.__toast);
-      window.__toast = setTimeout(()=> toastDiv.style.opacity = '0', 1100);
+      window.__toast = setTimeout(() => toastDiv.style.opacity = '0', 1100);
     }
 
     // --- Banner dismiss (session-scoped) ---
-    (function wireBannerDismiss(){
+    (function wireBannerDismiss() {
       const key = 'tdm2026_banner_dismissed';
       const banner = document.querySelector('.alert-banner');
-      if(!banner) return;
-      if(sessionStorage.getItem(key) === '1'){ banner.remove(); return; }
+      if (!banner) return;
+      if (sessionStorage.getItem(key) === '1') { banner.remove(); return; }
       banner.querySelector('.banner-close')?.addEventListener('click', () => {
         banner.remove();
         sessionStorage.setItem(key, '1');
       });
     })();
+
+    // --- Startup and refresh cadence ---
+    renderStatus('Loading live position assignments…');
+    loadCachedData();
+    requestLiveData();
+    setInterval(requestLiveData, TDM_REFRESH_INTERVAL_MS);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') requestLiveData();
+    });
   </script>
 </body>
 </html>
