@@ -163,7 +163,7 @@
     }
     .eyebrow::before{content:"";width:28px;height:3px;border-radius:99px;background:var(--county-gold)}
     h1,h2,h3{color:var(--county-navy-deep);line-height:1.15}
-    h1{margin:0;max-width:16ch;font-size:clamp(2.3rem,5vw,4.25rem);letter-spacing:-.035em;font-weight:800}
+    h1{margin:0;max-width:19ch;font-size:clamp(2.2rem,3.7vw,3.35rem);letter-spacing:-.03em;font-weight:800}
     .lead{margin:22px 0 0;max-width:70ch;color:#465267;font-size:1.1rem;line-height:1.75}
     .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
     .btn{
@@ -322,8 +322,9 @@
     .site-footer{margin-top:44px;background:var(--county-navy-deep);color:#d9e2f2;border-top:5px solid var(--county-gold)}
     .footer-inner{padding:28px 0 32px;display:flex;justify-content:space-between;gap:24px;align-items:flex-start}
     .footer-small{color:#b8c6dc;font-size:.9rem;margin-top:5px}
-    .back-top{color:#fff;text-decoration:none;font-weight:750;white-space:nowrap}
-    .back-top:hover{color:#fff}
+    .back-top{appearance:none;border:0;background:transparent;padding:4px 0;color:#fff;font:inherit;font-weight:750;white-space:nowrap;cursor:pointer}
+    .back-top:hover{color:#fff;text-decoration:underline}
+    .back-top:focus-visible{outline:3px solid var(--county-gold);outline-offset:5px;border-radius:3px}
 
     @media(max-width:1020px){
       :root{--header-h:76px}
@@ -728,7 +729,7 @@
         <div>© <span id="y"></span> Essex County ARES • Volunteer emergency communications in service to the public.</div>
         <div class="footer-small">This site is for preparedness and information. For emergencies, dial 9-1-1.</div>
       </div>
-      <a class="back-top" href="#top">Back to top ↑</a>
+      <button class="back-top" id="back-to-top" type="button" aria-label="Back to top">Back to top ↑</button>
     </div>
   </footer>
 
@@ -740,6 +741,14 @@
       var header = document.querySelector('.site-header');
       var btn = document.querySelector('.menu-toggle');
       var panel = document.getElementById('mobile-menu');
+      var backToTop = document.getElementById('back-to-top');
+
+      if(backToTop){
+        backToTop.addEventListener('click', function(){
+          var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          window.scrollTo({top:0, left:0, behavior: reduceMotion ? 'auto' : 'smooth'});
+        });
+      }
 
       function closeMenu(){
         if(!header || !btn) return;
