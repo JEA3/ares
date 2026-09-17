@@ -290,10 +290,12 @@
     .details-body ul{margin-top:0;margin-bottom:0}
 
     .net-box{margin-top:18px;padding:16px 18px;border-radius:14px;background:var(--gold-soft);border:1px solid #ead89e}
-    .net-box h3{font-size:1rem;margin-bottom:10px}
-    .net-details{display:grid;gap:9px}
-    .net-row{display:grid;grid-template-columns:92px minmax(0,1fr);gap:10px;align-items:start;color:#5b5034;line-height:1.45}
-    .net-label{color:var(--county-navy-deep);font-size:.76rem;font-weight:850;letter-spacing:.055em;text-transform:uppercase}
+    .net-box h3{font-size:1rem;margin-bottom:12px}
+    /* One shared desktop grid keeps every net label/value on the same column line. */
+    .net-details{display:grid;grid-template-columns:108px minmax(0,1fr);column-gap:18px;row-gap:10px;align-items:baseline}
+    .net-row{display:contents;color:#5b5034;line-height:1.45}
+    .net-row > span:last-child{min-width:0}
+    .net-label{text-align:right;color:var(--county-navy-deep);font-size:.76rem;font-weight:850;letter-spacing:.055em;text-transform:uppercase;white-space:nowrap}
     .training-list li + li{margin-top:10px}
 
     /* Served area */
@@ -418,7 +420,10 @@
       .municipality-list{grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
       .municipality-list li{padding:7px 2px;background:transparent;border:0;border-bottom:1px solid #e1e6ee;border-radius:0;font-size:.86rem;line-height:1.35}
       .training-list li + li{margin-top:12px}
-      .net-row{grid-template-columns:1fr;gap:2px}
+      .net-details{grid-template-columns:1fr;gap:10px}
+      .net-row{display:grid;grid-template-columns:1fr;gap:2px;padding-bottom:9px;border-bottom:1px solid rgba(157,118,25,.18)}
+      .net-row:last-child{padding-bottom:0;border-bottom:0}
+      .net-label{text-align:left}
       .contact-card{padding:23px 20px}
     }
 
@@ -664,7 +669,7 @@
               <p class="note">Groups.io page: <a href="https://nenj-ares-emcomm.groups.io/g/main" target="_blank" rel="noopener noreferrer">nenj-ares-emcomm.groups.io/g/main</a></p>
 
               <div class="net-box">
-                <h3>Monthly Net</h3>
+                <h3>Monthly Essex County ARES Net</h3>
                 <div class="net-details">
                   <div class="net-row"><span class="net-label">Schedule</span><span>Second Monday of every month at 8 PM ET</span></div>
                   <div class="net-row"><span class="net-label">West Essex</span><span>KC2TXA (SBARC) Repeater · 146.595 MHz · +1.0 MHz · 100.0 Hz PL encode and decode</span></div>
