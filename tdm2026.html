@@ -36,6 +36,7 @@
       --banner-bg:#fff2b8;
       --banner-border:#d5ad3f;
       --banner-fg:#342a12;
+      --alert-banner-height:0px;
     }
 
     *{box-sizing:border-box}
@@ -106,7 +107,7 @@
     /* Header */
     header{
       position:sticky;
-      top:0;
+      top:var(--alert-banner-height);
       z-index:1000;
       min-height:66px;
       padding:9px max(14px, env(safe-area-inset-left));
@@ -424,15 +425,13 @@
 <body>
 
   <!-- ATTENTION BANNER -->
-  <!-- 
   <div class="alert-banner" role="alert" aria-live="assertive" aria-atomic="true">
     <span class="icon" aria-hidden="true">⚠️</span>
     <span class="banner-text">
-      Due to inclement weather, <b>this event has been postponed</b> to <b>Sunday, October 4th 2026</b>.
+      <b>EVENT RESCHEDULED:</b> Due to the forecast of rain, the 2026 Tour de Millburn has been rescheduled to <b>Sunday, October 4, 2026</b>.
     </span>
     <button class="banner-close" aria-label="Dismiss banner">✕</button>
   </div>
-  -->
 
   <header>
     <!-- Clickable ARES logo -->
@@ -441,14 +440,14 @@
     </a>
     <div class="title">
       <b>2026 Tour de Millburn</b>
-      <span>ARES Mobile Operations • Sept 20, 2026 • 7:30–10:30 AM</span>
+      <span>ARES Mobile Operations • Oct 4, 2026 • 7:30–10:30 AM</span>
     </div>
   </header>
 
   <div class="wrap">
     <section class="hero" aria-label="Event summary">
       <div class="kvs">
-        <div class="kv"><b>Date</b><div>Sunday, Sept 20, 2026</div><div>Rain Date Sunday, Oct 4th</div></div>
+        <div class="kv"><b>Date</b><div>Sunday, Oct 4, 2026</div></div>
         <div class="kv"><b>Ops Window</b><div>07:30 – 10:30 AM</div></div>
         <div class="kv"><b>Primary</b><div>147.505 (−1.0, PL 123.0)</div></div>
         <div class="kv"><b>Backup</b><div>146.595 (+1.0, PL 100.0)</div></div>
@@ -852,11 +851,30 @@
     (function wireBannerDismiss() {
       const key = 'tdm2026_banner_dismissed';
       const banner = document.querySelector('.alert-banner');
-      if (!banner) return;
-      if (sessionStorage.getItem(key) === '1') { banner.remove(); return; }
+
+      function syncBannerHeight() {
+        const height = document.querySelector('.alert-banner')?.offsetHeight || 0;
+        document.documentElement.style.setProperty('--alert-banner-height', `${height}px`);
+      }
+
+      if (!banner) {
+        syncBannerHeight();
+        return;
+      }
+
+      if (sessionStorage.getItem(key) === '1') {
+        banner.remove();
+        syncBannerHeight();
+        return;
+      }
+
+      syncBannerHeight();
+      window.addEventListener('resize', syncBannerHeight, { passive:true });
+
       banner.querySelector('.banner-close')?.addEventListener('click', () => {
         banner.remove();
         sessionStorage.setItem(key, '1');
+        syncBannerHeight();
       });
     })();
 
