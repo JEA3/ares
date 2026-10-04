@@ -8,6 +8,7 @@
   <meta property="og:title" content="2026 Tour de Millburn — ARES Event Recap" />
   <meta property="og:description" content="Essex County ARES at the 2026 Tour de Millburn — event recap and photos." />
   <meta property="og:type" content="website" />
+  <meta property="og:image" content="img/tdm-25-4.jpg" />
   <meta name="theme-color" content="#17336f" />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -343,8 +344,8 @@
   </header>
 
   <div class="wrap">
-    <section class="hero" id="hero">
-      <img class="lede" id="heroImage" alt="" />
+    <section class="hero has-photo" id="hero">
+      <img class="lede" src="img/tdm-25-4.jpg" alt="Tour de Millburn" />
       <div class="overlay">
         <div class="title">
           <div class="pill">2026 Tour de Millburn • Event Recap</div>
@@ -421,9 +422,6 @@
   <script>
     (() => {
       const gallery = document.getElementById("gallery");
-      const hero = document.getElementById("hero");
-      const heroImage = document.getElementById("heroImage");
-
       const lightbox = document.getElementById("lightbox");
       const lightboxImage = document.getElementById("lightboxImage");
       const lightboxCount = document.getElementById("lightboxCount");
@@ -492,9 +490,6 @@
           gallery.appendChild(figure);
         });
 
-        heroImage.src = photoUrl(photos[0].name);
-        heroImage.alt = "Tour de Millburn 2026";
-        heroImage.addEventListener("load", () => hero.classList.add("has-photo"), {once:true});
       }
 
       async function loadGallery() {
