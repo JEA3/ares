@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+  xmlns:atom="http://www.w3.org/2005/Atom"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Essex County ARES Event Recaps</title>
+    <link>https://ares.osi3.net/</link>
+    <description>Event recaps and community-service activities from Essex County Amateur Radio Emergency Service.</description>
+    <language>en-us</language>
+    <atom:link href="https://ares.osi3.net/feed.xml" rel="self" type="application/rss+xml" />
+
+    <item>
+      <title>Amateur Radio Supporting the Tour de Millburn</title>
+      <link>https://ares.osi3.net/tour-de-millburn-2026-recap.html</link>
+      <guid isPermaLink="true">https://ares.osi3.net/tour-de-millburn-2026-recap.html</guid>
+      <pubDate>Sun, 04 Oct 2026 12:00:00 -0400</pubDate>
+      <dc:creator>Essex County ARES</dc:creator>
+      <category>Amateur Radio</category>
+      <category>Community Service</category>
+      <category>Tour de Millburn</category>
+      <description><![CDATA[
+        Essex County ARES supported the 2026 Tour de Millburn with 11 volunteers providing real-time amateur radio communications along the 7 and 15-mile courses. Volunteers from local amateur radio clubs, including WEARC and the Roseland Amateur Radio Club, participated in the operation. Radio communications were clear and effective throughout the morning, and no major safety incidents were reported.
+      ]]></description>
+      <content:encoded><![CDATA[
+        <p><img src="https://ares.osi3.net/img/tdm-25-4.jpg" alt="Tour de Millburn" /></p>
+        <p>Essex County ARES supported the 2026 Tour de Millburn with 11 volunteers providing real-time amateur radio communications along the 7 and 15-mile courses. Volunteers from local amateur radio clubs, including WEARC and the Roseland Amateur Radio Club, participated in the operation. Radio communications were clear and effective throughout the morning, and no major safety incidents were reported.</p>
+
+        <h2>Highlights</h2>
+        <ul>
+          <li>Weather was cool and overcast, a pleasant day for cycling.</li>
+          <li>Road conditions: dry.</li>
+          <li>Hundreds of cyclists enjoyed the 3 courses (2-mile, 7-mile, 15-mile).</li>
+          <li>11 ARES volunteers provided real-time communication on the 7 and 15 mile courses.</li>
+          <li>Radio communication between ARES volunteers was clear and effective.</li>
+          <li>KC2TXA/R and WA2BAT/R linked for the event; HT coverage possible across the entire course.</li>
+          <li>No major safety incidents along the courses.</li>
+          <li>Event sponsor and the Millburn Police Department were pleased with our performance and efforts.</li>
+          <li>New this year: electric scooter mobile operator embedded with the 15 mile loop cyclists.</li>
+        </ul>
+
+        <h2>Thank You</h2>
+        <p>Thank you to our ARES volunteers, event organizers, Millburn Township, the Millburn Recreation Department, the Millburn Police Department, and everyone who helped make the event possible.</p>
+        <ul>
+          <li>The KC2TXA (Livingston) and WA2BAT (Springfield) VHF repeaters were linked to allow HT coverage across the 15 mile course.</li>
+          <li>Thank you to the Springfield OEM, WA2BAT, W2FCC, and N2FCC for the use of the Springfield system.</li>
+        </ul>
+
+        <p><a href="https://ares.osi3.net/tour-de-millburn-2026-recap.html">View the full 2026 Tour de Millburn recap and photo gallery.</a></p>
+      ]]></content:encoded>
+      <media:content url="https://ares.osi3.net/img/tdm-25-4.jpg" medium="image" type="image/jpeg" />
+      <media:thumbnail url="https://ares.osi3.net/img/tdm-25-4.jpg" />
+    </item>
+  </channel>
+</rss>
